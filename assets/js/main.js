@@ -3,6 +3,54 @@
   const toggle = document.querySelector(".menu-toggle");
   const nav = document.querySelector(".site-nav");
 
+  const setupLocalCleanUrlFallback = () => {
+    const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+    if (!localHosts.has(window.location.hostname)) return;
+
+    const routes = new Set([
+      "/",
+      "/quem-somos",
+      "/o-que-fazemos",
+      "/ped",
+      "/esg",
+      "/certificacoes",
+      "/fornecedores",
+      "/contato",
+      "/carreiras",
+      "/en/",
+      "/en/quem-somos",
+      "/en/o-que-fazemos",
+      "/en/ped",
+      "/en/esg",
+      "/en/certificacoes",
+      "/en/fornecedores",
+      "/en/contato",
+      "/en/carreiras",
+    ]);
+
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (!link || event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || !routes.has(url.pathname)) {
+        return;
+      }
+
+      event.preventDefault();
+      const filePath =
+        url.pathname === "/"
+          ? "/index.html"
+          : url.pathname === "/en/"
+            ? "/en/index.html"
+            : `${url.pathname}.html`;
+      window.location.assign(`${filePath}${url.search}${url.hash}`);
+    });
+  };
+
   const syncHeader = () => {
     header?.classList.toggle("scrolled", window.scrollY > 18);
   };
@@ -125,6 +173,7 @@
     });
   };
 
+  setupLocalCleanUrlFallback();
   setupHeader();
   setupRevealAnimations();
   setupForms();
